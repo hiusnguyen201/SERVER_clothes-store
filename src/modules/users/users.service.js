@@ -1,26 +1,49 @@
-import { User } from "#src/modules/users/schemas/user.schema";
+import { UserModel } from "#src/modules/users/schemas/user.schema";
 import { NotFoundException } from "#src/http-exception";
 
-export default { create, findAll, findOne, update, remove };
-
-async function create(data) {
-  const { avatar = "", name, phone, birthday, gender } = data;
-
-  if (!name) {
-    throw new Error();
-  }
-
+async function createUser(
+  email,
+  avatar = "",
+  name,
+  phone,
+  birthday,
+  gender = null,
+) {
   const newUser = await User.create({
-    avatar: avatar,
-    name: name,
-    phone: phone,
-    birthday: birthday,
-    gender: gender,
+    avatar,
+    name,
+    phone,
+    birthday,
+    gender,
   });
   return newUser;
 }
 
-async function findAll(data) {
+async function checkExistedUser({ email, id }) {
+  //handle some logic query here
+  query = {};
+
+  if (email) {
+    query.email = email;
+  }
+
+  if (id) {
+    query._id = id;
+  }
+
+  if (email && id) {
+    query.$or = [{ email }, { _id: id }];
+  }
+
+  if (!email && !id) {
+    return null;
+  }
+
+  const user = await UserModel.findOne({ query });
+  return user;
+}
+
+async function findAllUsers(data) {
   let {
     keyword,
     sortBy = "name-atoz",
@@ -55,7 +78,7 @@ async function findAll(data) {
       sort.name = 1;
       break;
   }
-  const totalItems = await User.countDocuments(filters);
+  const totalItems = await UserModel.countDocuments(filters);
   const totalPages = Math.ceil(totalItems / itemPerPage);
 
   if (page <= 0 || !page) {
@@ -66,7 +89,7 @@ async function findAll(data) {
 
   const offSet = (page - 1) * itemPerPage;
 
-  const users = await User.find(filters).skip(offSet).limit(itemPerPage);
+  const users = await UserModel.find(filters).skip(offSet).limit(itemPerPage);
 
   return {
     list: users,
@@ -84,12 +107,12 @@ async function findAll(data) {
   };
 }
 
-async function findOne(id) {
+async function findOneUserById(id) {
   if (!id) {
     throw new Error();
   }
 
-  const user = await User.findById(id);
+  const user = await UserModel.findById(id);
 
   if (!user) {
     throw new Error();
@@ -98,7 +121,7 @@ async function findOne(id) {
   return user;
 }
 
-async function update(id, data) {
+async function updateUserById(id, data) {
   const { avatar, name, phone, birthday, gender } = data;
 
   if (!id) {
@@ -108,7 +131,7 @@ async function update(id, data) {
   const user = await User.findByIdAndUpdate(
     id,
     { avatar, name, phone, birthday, gender },
-    { new: true }
+    { new: true },
   );
 
   if (!user) {
@@ -116,11 +139,11 @@ async function update(id, data) {
   return user;
 }
 
-async function remove(id) {
+async function removeUserById(id) {
   if (!id) {
     throw new Error();
   }
-  const user = await User.findByIdAndDelete(id);
+  const user = await UserModel.findByIdAndDelete(id);
 
   if (!user) {
     throw new Error();
@@ -128,3 +151,13 @@ async function remove(id) {
 
   return "Deleted";
 }
+
+//export move bottom of file
+export {
+  createUser,
+  findAllUsers,
+  findOneUserById,
+  updateUserById,
+  removeUserById,
+  checkExistedUser,
+};
