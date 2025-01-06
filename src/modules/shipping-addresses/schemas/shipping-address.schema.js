@@ -20,12 +20,12 @@ const shippingAddressSchema = new Schema(
       length: 50,
       required: true,
     },
-    ward: {
+    district: {
       type: String,
       length: 50,
       required: true,
     },
-    district: {
+    ward: {
       type: String,
       length: 50,
       required: true,
