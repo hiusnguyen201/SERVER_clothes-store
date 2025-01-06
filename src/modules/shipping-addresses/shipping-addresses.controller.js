@@ -18,7 +18,7 @@ import { validateAndGetAddress } from "#src/utils/address.util";
 
 export const createShippingAddressController = async (req, res) => {
   const userId = req.user?._id ?? "674c2acaee49e3618bb6a9ff";
-  const { provinceCode, districtCode, wardCode, street, isDefault } = req.body;
+  const { provinceCode, districtCode, wardCode, isDefault } = req.body;
 
   const result = await validateAndGetAddress(provinceCode, districtCode, wardCode);
 
@@ -57,7 +57,7 @@ export const getAllShippingAddressesController = async (req, res) => {
   const totalCount = await countAllShippingAddressesService(filterOptions);
   const metaData = calculatePagination(page, limit, totalCount);
 
-  const addresses = await getAllShippingAddressesService({
+  const shippingAddresses = await getAllShippingAddressesService({
     filters: filterOptions,
     offset: metaData.offset,
     limit: metaData.limit,
@@ -66,7 +66,7 @@ export const getAllShippingAddressesController = async (req, res) => {
   return res.json({
     statusCode: HttpStatus.OK,
     message: "Get all shipping address successfully",
-    data: { meta: metaData, list: addresses },
+    data: { meta: metaData, list: shippingAddresses },
   });
 };
 
@@ -74,19 +74,19 @@ export const getShippingAddressByIdController = async (req, res) => {
   const userId = req.user?._id ?? "674c2acaee49e3618bb6a9ff";
   const { id } = req.params;
 
-  const existAddress = await getShippingAddressByIdService(id);
-  if (!existAddress) {
+  const existShippingAddress = await getShippingAddressByIdService(id);
+  if (!existShippingAddress) {
     throw new NotFoundException("Shipping address not found");
   }
 
-  if (existAddress.customer != userId) {
+  if (existShippingAddress.customer != userId) {
     throw new ConflictException("UserId is invalid");
   }
 
   return res.json({
     statusCode: HttpStatus.OK,
     message: "Get one shipping address successfully",
-    data: existAddress,
+    data: existShippingAddress,
   });
 };
 
@@ -95,11 +95,11 @@ export const updateShippingAddressByIdController = async (req, res) => {
   const { id } = req.params;
   const { provinceCode, districtCode, wardCode, address, isDefault } = req.body;
 
-  const existAddress = await getShippingAddressByIdService(id);
-  if (!existAddress) {
+  const existShippingAddress = await getShippingAddressByIdService(id);
+  if (!existShippingAddress) {
     throw new NotFoundException("Shipping address not found");
   }
-  if (existAddress.customer != userId) {
+  if (existShippingAddress.customer != userId) {
     throw new ConflictException("UserId is invalid");
   }
 
@@ -132,12 +132,12 @@ export const removeShippingAddressByIdController = async (req, res) => {
   const userId = req.user?._id ?? "674c2acaee49e3618bb6a9ff";
   const { id } = req.params;
 
-  const existAddress = await getShippingAddressByIdService(id);
-  if (!existAddress) {
+  const existShippingAddress = await getShippingAddressByIdService(id);
+  if (!existShippingAddress) {
     throw new NotFoundException("Shipping address not found");
   }
 
-  if (existAddress.customer != userId) {
+  if (existShippingAddress.customer != userId) {
     throw new ConflictException("UserId is invalid");
   }
 
