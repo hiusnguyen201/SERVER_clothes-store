@@ -14,7 +14,7 @@ import {
   findAndSetIsDefaultToFalseShippingAddressByCustomerId,
 } from "#src/modules/shipping-addresses/shipping-addresses.service";
 import { calculatePagination } from "#src/utils/pagination.util";
-import { validateAndGetAddress } from "#src/utils/address.util";
+import { validateAndGetAddress } from "#src/utils/shipping-address.util";
 
 export const createShippingAddressController = async (req, res) => {
   const userId = req.user?._id ?? "674c2acaee49e3618bb6a9ff";
@@ -23,7 +23,7 @@ export const createShippingAddressController = async (req, res) => {
   const result = await validateAndGetAddress(provinceCode, districtCode, wardCode);
 
   if (!result.isValid) {
-    throw new PreconditionFailedException(`Err 422: ${JSON.stringify(result.errors)}`);
+    throw new PreconditionFailedException(`Error: ${JSON.stringify(result.errors)}`);
   }
   req.body.city = result.data.province
   req.body.district = result.data.district
@@ -93,7 +93,7 @@ export const getShippingAddressByIdController = async (req, res) => {
 export const updateShippingAddressByIdController = async (req, res) => {
   const userId = req.user?._id || "674c2acaee49e3618bb6a9ff";
   const { id } = req.params;
-  const { provinceCode, districtCode, wardCode, address, isDefault } = req.body;
+  const { provinceCode, districtCode, wardCode, isDefault } = req.body;
 
   const existShippingAddress = await getShippingAddressByIdService(id);
   if (!existShippingAddress) {
@@ -106,7 +106,7 @@ export const updateShippingAddressByIdController = async (req, res) => {
   const result = await validateAndGetAddress(provinceCode, districtCode, wardCode);
 
   if (!result.isValid) {
-    throw new PreconditionFailedException(`Err 422: ${JSON.stringify(result.errors)}`);
+    throw new PreconditionFailedException(`Error: ${JSON.stringify(result.errors)}`);
   }
   req.body.city = result.data.province
   req.body.district = result.data.district

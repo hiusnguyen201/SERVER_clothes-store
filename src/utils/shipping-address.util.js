@@ -1,23 +1,21 @@
-// const URL = 'https://provinces.open-api.vn/api';
-import mongoose from "mongoose";
-const db = mongoose.connection;
+const URL = 'https://provinces.open-api.vn/api';
 
 export const validateProvinceCode = async (provinceCode) => {
     try {
-        const result = await db.collection('provinces').findOne({code: provinceCode})
-
-        if (!result) {
+        const response = await fetch(`${URL}/p/${provinceCode}`);
+        if (!response.ok) {
             return {
                 isValid: false,
                 error: "Provices not found"
             };
         }
+        const json = await response.json();
 
         return {
             isValid: true,
             data: {
-                name: result.name,
-                code: result.code
+                name: json.name,
+                code: json.code
             }
         }
     } catch (error) {
@@ -27,16 +25,17 @@ export const validateProvinceCode = async (provinceCode) => {
 
 export const validateDistrictCode = async (provinceCode, districtCode) => {
     try {
-        const result = await db.collection('districts').findOne({code: districtCode})
-
-        if (!result) {
+        const response = await fetch(`${URL}/d/${districtCode}`);
+        if (!response.ok) {
             return {
                 isValid: false,
                 error: "District not found"
             };
         }
 
-        if (result.province_code !== provinceCode) {
+        const json = await response.json();
+
+        if (json.province_code !== provinceCode) {
             return {
                 isValid: false,
                 error: "District is invalid"
@@ -46,8 +45,8 @@ export const validateDistrictCode = async (provinceCode, districtCode) => {
         return {
             isValid: true,
             data: {
-                name: result.name,
-                code: result.code
+                name: json.name,
+                code: json.code
             }
         }
     } catch (error) {
@@ -57,16 +56,18 @@ export const validateDistrictCode = async (provinceCode, districtCode) => {
 
 export const validateWardCode = async (districtCode, wardCode) => {
     try {
-        const result = await db.collection('wards').findOne({code: wardCode});
-        
-        if (!result) {
+        const response = await fetch(`${URL}/d/${wardCode}?depth=2`);
+        if (!response.ok) {
             return {
                 isValid: false,
                 error: "Ward not found"
             };
         }
+        const json = await response.json();
 
-        if (result.district_code !== districtCode) {
+        const findWard = json.wards.find(ward => ward.code === wardCode);
+
+        if (!findWard || findWard.district_code !== districtCode) {
             return {
                 isValid: false,
                 error: "Ward is invalid"
@@ -76,8 +77,8 @@ export const validateWardCode = async (districtCode, wardCode) => {
         return {
             isValid: true,
             data: {
-                name: result.name,
-                code: result.code
+                name: json.name,
+                code: json.code
             }
         }
     } catch (error) {
@@ -118,4 +119,4 @@ export const validateAndGetAddress = async (provinceCode, districtCode, wardCode
     } catch (error) {
         console.log(error);
     }
-}
+} 
