@@ -43,20 +43,27 @@ export async function countAllShippingAddressesService(filters) {
 
 /**
  * Get address by id
- * @param {*} id
+ * @param {*} addressId
+ * @param {*} customerId
  * @param {*} selectFields
  * @returns
  */
 export async function getShippingAddressByIdService(
-  id,
+  addressId,
+  customerId,
   selectFields = SELECTED_FIELDS
 ) {
-  if (!id) return null;
+  if (!addressId) return null;
   const filter = {};
 
-  if (isValidObjectId(id)) {
-    filter._id = id;
+  if (isValidObjectId(addressId)) {
+    filter._id = addressId;
   }
+
+  if (isValidObjectId(customerId)) {
+    filter.customer = customerId;
+  }
+
   return ShippingAddressModel.findOne(filter).select(selectFields);
 }
 
@@ -82,14 +89,16 @@ export async function removeShippingAddressByIdService(id) {
 }
 
 /**
- * Find and set isDefault to false shipping address by customerId
- * @param {*} id
+ * Active default shipping address
+ * @param {*} addressId
+ * @param {*} customerId
  * @returns
  */
-export async function findAndSetIsDefaultToFalseShippingAddressByCustomerId(id) {
+export async function activateDefaultShippingAddressIdService(addressId, customerId) {
+
   await ShippingAddressModel.updateOne(
     {
-      customer_id: id,
+      customer: customerId,
       isDefault: true,
     },
     {
@@ -97,5 +106,38 @@ export async function findAndSetIsDefaultToFalseShippingAddressByCustomerId(id) 
     },
     { new: true }
   ).select(SELECTED_FIELDS);
+
+  await ShippingAddressModel.updateOne(
+    {
+      _id: addressId,
+      customer: customerId,
+    },
+    {
+      isDefault: true,
+    },
+    { new: true }
+  ).select(SELECTED_FIELDS);
+  return;
+}
+
+/**
+ * Deactive default shipping address
+ * @param {*} addressId
+ * @param {*} customerId
+ * @returns
+ */
+
+export async function deactivateDefaultShippingAddressIdService(addressId, customerId) {
+  await ShippingAddressModel.updateOne(
+    {
+      _id: addressId,
+      customer: customerId,
+    },
+    {
+      isDefault: false,
+    },
+    { new: true }
+  ).select(SELECTED_FIELDS);
+
   return;
 }

@@ -10,8 +10,7 @@ export const updateShippingAddressDto = Joi.object({
     .min(3)
     .max(50)
     .custom((value) => replaceMultiSpacesToSingleSpace(value)),
-  provinceCode: Joi.number(),
+  cityCode: Joi.number(),
   districtCode: Joi.number(),
   wardCode: Joi.number(),
-  isDefault: Joi.boolean(),
 });

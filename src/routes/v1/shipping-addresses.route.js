@@ -7,6 +7,11 @@ import {
   getShippingAddressByIdController,
   updateShippingAddressByIdController,
   removeShippingAddressByIdController,
+  getAllCityController,
+  getDistrictByCityController,
+  getWardByCityController,
+  activateDefaultShippingAddressIdController,
+  deactivateDefaultShippingAddressIdController,
 } from "#src/modules/shipping-addresses/shipping-addresses.controller";
 import { createShippingAddressDto } from "#src/modules/shipping-addresses/dto/create-shipping-address.dto";
 import { updateShippingAddressDto } from "#src/modules/shipping-addresses/dto/update-shipping-address.dto";
@@ -16,10 +21,12 @@ import { isAuthorized } from "#src/middlewares/jwt-auth.middleware";
 router
   .get("/get-shipping-addresses",
     // isAuthorized,
-    getAllShippingAddressesController)
+    getAllShippingAddressesController
+  )
   .get("/get-shipping-address-by-id/:id",
     // isAuthorized,
-    getShippingAddressByIdController)
+    getShippingAddressByIdController
+  )
   .post(
     "/create-shipping-address",
     // isAuthorized,
@@ -34,6 +41,26 @@ router
   )
   .delete("/remove-shipping-address-by-id/:id",
     // isAuthorized,
-    removeShippingAddressByIdController);
-
+    removeShippingAddressByIdController
+  )
+  .patch("/active-default-by-id/:id",
+    // isAuthorized,
+    activateDefaultShippingAddressIdController
+  )
+  .patch("/deactive-default-by-id/:id",
+    // isAuthorized,
+    deactivateDefaultShippingAddressIdController
+  )
+  .get(
+    "/get-all-city",
+    getAllCityController
+  )
+  .get(
+    "/get-all-district-by-city/:id",
+    getDistrictByCityController
+  )
+  .get(
+    "/get-all-ward-by-district/:id",
+    getWardByCityController
+  )
 export default router;

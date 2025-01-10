@@ -1,12 +1,12 @@
 const URL = 'https://provinces.open-api.vn/api';
 
-export const validateProvinceCode = async (provinceCode) => {
+export const validateCityCode = async (cityCode) => {
     try {
-        const response = await fetch(`${URL}/p/${provinceCode}`);
+        const response = await fetch(`${URL}/p/${cityCode}`);
         if (!response.ok) {
             return {
                 isValid: false,
-                error: "Provices not found"
+                error: "City not found"
             };
         }
         const json = await response.json();
@@ -23,7 +23,7 @@ export const validateProvinceCode = async (provinceCode) => {
     }
 }
 
-export const validateDistrictCode = async (provinceCode, districtCode) => {
+export const validateDistrictCode = async (cityCode, districtCode) => {
     try {
         const response = await fetch(`${URL}/d/${districtCode}`);
         if (!response.ok) {
@@ -32,10 +32,9 @@ export const validateDistrictCode = async (provinceCode, districtCode) => {
                 error: "District not found"
             };
         }
-
         const json = await response.json();
 
-        if (json.province_code !== provinceCode) {
+        if (json.province_code !== cityCode) {
             return {
                 isValid: false,
                 error: "District is invalid"
@@ -66,7 +65,6 @@ export const validateWardCode = async (districtCode, wardCode) => {
         const json = await response.json();
 
         const findWard = json.wards.find(ward => ward.code === wardCode);
-
         if (!findWard || findWard.district_code !== districtCode) {
             return {
                 isValid: false,
@@ -86,21 +84,21 @@ export const validateWardCode = async (districtCode, wardCode) => {
     }
 }
 
-export const validateAndGetAddress = async (provinceCode, districtCode, wardCode) => {
+export const validateAndGetAddress = async (cityCode, districtCode, wardCode) => {
     try {
-        const [provinceResult, districtResult, wardResult] = await Promise.all([
-            validateProvinceCode(provinceCode),
-            validateDistrictCode(provinceCode, districtCode),
+        const [cityResult, districtResult, wardResult] = await Promise.all([
+            validateCityCode(cityCode),
+            validateDistrictCode(cityCode, districtCode),
             validateWardCode(districtCode, wardCode)
         ]);
 
-        const isValid = provinceResult.isValid && districtResult.isValid && wardResult.isValid;
+        const isValid = cityResult.isValid && districtResult.isValid && wardResult.isValid;
 
         if (!isValid) {
             return {
                 isValid: false,
                 errors: {
-                    province: !provinceResult.isValid ? provinceResult.error : "OK",
+                    city: !cityResult.isValid ? cityResult.error : "OK",
                     district: !districtResult.isValid ? districtResult.error : "OK",
                     ward: !wardResult.isValid ? wardResult.error : "OK"
                 }
@@ -110,7 +108,7 @@ export const validateAndGetAddress = async (provinceCode, districtCode, wardCode
         return {
             isValid: true,
             data: {
-                province: provinceResult.data.name,
+                city: cityResult.data.name,
                 district: districtResult.data.name,
                 ward: wardResult.data.name
             }

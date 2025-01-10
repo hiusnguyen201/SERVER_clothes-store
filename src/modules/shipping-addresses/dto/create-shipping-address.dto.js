@@ -12,11 +12,10 @@ export const createShippingAddressDto = Joi.object({
     .min(3)
     .max(50)
     .custom((value) => replaceMultiSpacesToSingleSpace(value)),
-  provinceCode: Joi.number()
+  cityCode: Joi.number()
     .required(),
   districtCode: Joi.number()
     .required(),
   wardCode: Joi.number()
     .required(),
-  isDefault: Joi.boolean().required(),
 });
