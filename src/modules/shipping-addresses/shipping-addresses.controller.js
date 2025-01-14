@@ -184,27 +184,6 @@ export const setDefaultShippingAddressByIdController = async (req, res) => {
   });
 };
 
-export const unsetDefaultShippingAddressByIdController = async (req, res) => {
-  const customerId = req.user?._id || "674c2acaee49e3618bb6a9ff";
-
-  const filterOptions = {
-    customer: customerId,
-    isDefault: true,
-  };
-  const totalCount = await countAllShippingAddressesService(filterOptions);
-
-  if (totalCount === 1) {
-    throw new ConflictException("Must have an address by default");
-  }
-
-  await unsetDefaultCurrentShippingAddressService(customerId);
-
-  return res.json({
-    statusCode: HttpStatus.NO_CONTENT,
-    message: "Unset default shipping address successfully",
-  });
-};
-
 export const getAllProvincesController = async (req, res) => {
   const provinces = getProvinces();
 
