@@ -1,4 +1,4 @@
-import { REGEX_PATTERNS } from "#src/core/constant";
+import { REGEX_PATTERNS, USER_TYPES } from "#src/core/constant";
 import {
   BadRequestException,
   ForbiddenException,
@@ -43,7 +43,7 @@ async function authorized(req, res, next) {
 
 async function checkPermission(req, res, next) {
   if (!req?.user) {
-    next(new UnauthorizedException("User not logged in"));
+    return next(new UnauthorizedException("User not logged in"));
   }
 
   // Convert to dynamic path
@@ -67,5 +67,22 @@ async function checkPermission(req, res, next) {
       );
 }
 
+function checkIsCustomer(req, res, next) {
+  if (!req?.user) {
+    return next(new UnauthorizedException("User not logged in"));
+  }
+
+  if (req.user.type !== USER_TYPES.CUSTOMER) {
+    return next(
+      new ForbiddenException(
+        "Don't have permission to access this resource"
+      )
+    );
+  }
+
+  next();
+}
+
 export const isAuthorized = [authorized];
+export const isAuthorizedAndIsCustomer = [authorized, checkIsCustomer];
 export const isAuthorizedAndHasPermission = [authorized, checkPermission];

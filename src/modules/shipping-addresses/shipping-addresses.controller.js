@@ -136,37 +136,3 @@ export const setDefaultShippingAddressByIdController = async (req) => {
     message: "Set default shipping address successfully",
   };
 };
-
-export const getAllProvincesController = async (req, res) => {
-  const provinces = getProvinces();
-
-  return res.json({
-    statusCode: HttpStatus.OK,
-    message: "Get all provinces successfully",
-    data: provinces,
-  });
-};
-
-export const getAllDistrictsByProvincesController = async (req, res) => {
-  const { provinceCode } = req.params;
-
-  const districts = getDistricts(provinceCode);
-
-  return res.json({
-    statusCode: HttpStatus.OK,
-    message: "Get all districts successfully",
-    data: districts,
-  });
-};
-
-export const getAllWardsByDistrictController = async (req, res) => {
-  const { districtCode } = req.params;
-
-  const wards = getWards(districtCode);
-
-  return res.json({
-    statusCode: HttpStatus.OK,
-    message: "Get all wards successfully",
-    data: wards,
-  });
-};

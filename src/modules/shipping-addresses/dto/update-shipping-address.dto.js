@@ -2,10 +2,10 @@ import Joi from "joi";
 import { replaceMultiSpacesToSingleSpace } from "#src/utils/string.util";
 import { REGEX_PATTERNS } from "#src/core/constant";
 import {
-  getDistrictByCodeAndProvinceCodeService,
+  getDistrictByCodeService,
   getProvinceByCodeService,
-  getWardByCodeAndDistrictCodeService,
-} from "#src/modules/vietnam-provinces/vietnam-provinces.service";
+  getWardByCodeService,
+} from "#src/modules/divisions/divisions.service";
 
 export const updateShippingAddressDto = Joi.object({
   address: Joi.string()
@@ -25,11 +25,8 @@ export const updateShippingAddressDto = Joi.object({
     .pattern(REGEX_PATTERNS.STRING_NUMBER)
     .custom((value, helpers) => {
       const { provinceCode } = helpers.state.ancestors[0];
-      const district = getDistrictByCodeAndProvinceCodeService(
-        value,
-        provinceCode
-      );
-      if (!district) {
+      const district = getDistrictByCodeService(value);
+      if (!district || district.province_code !== provinceCode) {
         return helpers.message("District is not found");
       }
       return district.name;
@@ -38,11 +35,8 @@ export const updateShippingAddressDto = Joi.object({
     .pattern(REGEX_PATTERNS.STRING_NUMBER)
     .custom((value, helpers) => {
       const { districtCode } = helpers.state.ancestors[0];
-      const ward = getWardByCodeAndDistrictCodeService(
-        value,
-        districtCode
-      );
-      if (!ward) {
+      const ward = getWardByCodeService(value);
+      if (!ward || ward.district_code !== districtCode) {
         return helpers.message("Ward is not found");
       }
       return ward.name;
