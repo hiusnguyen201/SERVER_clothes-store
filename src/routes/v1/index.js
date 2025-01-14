@@ -9,6 +9,7 @@ import customersRouter from "#src/routes/v1/customers.route";
 import categoriesRouter from "#src/routes/v1/categories.route";
 import vouchersRouter from "#src/routes/v1/vouchers.route";
 import accountRouter from "#src/routes/v1/account.route";
+import shippingAddressesRouter from "#src/routes/v1/shipping-addresses.route";
 
 router.get("/ping", (req, res) => {
   return "Hello, world! PING";
@@ -29,5 +30,7 @@ router.use("/categories", categoriesRouter);
 router.use("/customers", customersRouter);
 
 router.use("/vouchers", vouchersRouter);
+
+router.use("/shipping-addresses", shippingAddressesRouter);
 
 export default router;
