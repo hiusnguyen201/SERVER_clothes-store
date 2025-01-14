@@ -1,4 +1,5 @@
-import { provinces, districts, wards } from "vietnam-provinces";
+import pkg from "vietnam-provinces";
+const { provinces, districts, wards } = pkg;
 
 const provincesMap = new Map(provinces.map((item) => [item.code, item]));
 const districtsMap = new Map(districts.map((item) => [item.code, item]));

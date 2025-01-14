@@ -18,38 +18,39 @@ import { validateSchema } from "#src/middlewares/validate-request.middleware";
 import { isAuthorized } from "#src/middlewares/jwt-auth.middleware";
 
 router
-  .get("/get-shipping-addresses",
-    // isAuthorized,
+  .get(
+    "/get-shipping-addresses",
+    isAuthorized,
     getAllShippingAddressesController
   )
-  .get("/get-shipping-address-by-id/:id",
-    // isAuthorized,
+  .get(
+    "/get-shipping-address-by-id/:id",
+    isAuthorized,
     getShippingAddressByIdController
   )
   .post(
     "/create-shipping-address",
-    // isAuthorized,
+    isAuthorized,
     validateSchema(createShippingAddressDto),
     createShippingAddressController
   )
   .patch(
     "/update-shipping-address-by-id/:id",
-    // isAuthorized,
+    isAuthorized,
     validateSchema(updateShippingAddressDto),
     updateShippingAddressByIdController
   )
-  .delete("/remove-shipping-address-by-id/:id",
-    // isAuthorized,
+  .delete(
+    "/remove-shipping-address-by-id/:id",
+    isAuthorized,
     removeShippingAddressByIdController
   )
-  .patch("/set-default-by-id/:id",
-    // isAuthorized,
+  .patch(
+    "/set-default-by-id/:id",
+    isAuthorized,
     setDefaultShippingAddressByIdController
   )
-  .get(
-    "/get-all-provinces",
-    getAllProvincesController
-  )
+  .get("/get-all-provinces", getAllProvincesController)
   .get(
     "/get-all-districts-by-province/:provinceCode",
     getAllDistrictsByProvincesController
@@ -57,5 +58,5 @@ router
   .get(
     "/get-all-wards-by-district/:districtCode",
     getAllWardsByDistrictController
-  )
+  );
 export default router;

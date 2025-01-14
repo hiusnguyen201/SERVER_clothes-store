@@ -7,7 +7,7 @@ import {
   getWardByCodeAndDistrictCodeService,
 } from "#src/modules/vietnam-provinces/vietnam-provinces.service";
 
-export const createShippingAddressDto = Joi.object({
+export const updateShippingAddressDto = Joi.object({
   address: Joi.string()
     .min(3)
     .max(100)
