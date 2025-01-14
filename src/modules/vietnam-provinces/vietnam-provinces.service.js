@@ -1,77 +1,32 @@
-import pkg from 'vietnam-provinces';
-const {
-    getProvinces,
-    getDistricts,
-    getWards } = pkg;
+import { provinces, districts, wards } from "vietnam-provinces";
+
+const provincesMap = new Map(provinces.map((item) => [item.code, item]));
+const districtsMap = new Map(districts.map((item) => [item.code, item]));
+const wardsMap = new Map(wards.map((item) => [item.code, item]));
 
 export const getProvinceByCodeService = (provinceCode) => {
-    try {
-        const provinces = getProvinces(provinceCode);
-        const province = provinces.find(p => p.code == provinceCode)
+  const province = provincesMap.get(provinceCode);
+  return province ? province : null;
+};
 
-        if (!province) {
-            return {
-                isValid: false,
-                error: "Province is invalid"
-            }
-        }
+export const getDistrictByCodeAndProvinceCodeService = (
+  districtCode,
+  provinceCode
+) => {
+  const district = districtsMap.get(districtCode);
+  if (!district || district.province_code !== provinceCode) {
+    return null;
+  }
+  return district;
+};
 
-        return {
-            isValid: true,
-            data: {
-                name: province.name,
-                code: province.code
-            }
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-export const getDistrictByCodeAndProvinceCodeService = (provinceCode, districtCode) => {
-    try {
-        const districts = getDistricts(provinceCode);
-        const district = districts.find(d => d.code == districtCode);
-
-        if (!district) {
-            return {
-                isValid: false,
-                error: "District is invalid"
-            };
-        }
-
-        return {
-            isValid: true,
-            data: {
-                name: district.name,
-                code: district.code
-            }
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-export const getWardByCodeAndDistrictCodeService = (districtCode, wardCode) => {
-    try {
-        const wards = getWards(districtCode);
-        const ward = wards.find(w => w.code == wardCode);
-
-        if (!ward) {
-            return {
-                isValid: false,
-                error: "Ward is invalid"
-            };
-        }
-
-        return {
-            isValid: true,
-            data: {
-                name: ward.name,
-                code: ward.code
-            }
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}
+export const getWardByCodeAndDistrictCodeService = (
+  wardCode,
+  districtCode
+) => {
+  const ward = wardsMap.get(wardCode);
+  if (!ward || ward.district_code !== districtCode) {
+    return null;
+  }
+  return ward;
+};

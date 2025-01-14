@@ -49,4 +49,5 @@ export const REGEX_PATTERNS = {
   PHONE_VIETNAM: /(84|0[3|5|7|8|9])+([0-9]{8})\b/g,
   ENDPOINT: /^\/[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*\/?$/g,
   BEARER_TOKEN: /^Bearer ((?:\.?(?:[A-Za-z0-9-_]+)){3})$/,
+  STRING_NUMBER: /^\d+$/,
 };

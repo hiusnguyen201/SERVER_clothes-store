@@ -53,7 +53,8 @@ export async function getShippingAddressByIdService(
   customerId,
   selectFields = SELECTED_FIELDS
 ) {
-  if (!addressId) return null;
+  if (!addressId || !customerId) return null;
+
   const filter = {};
 
   if (isValidObjectId(addressId)) {
@@ -85,7 +86,9 @@ export async function updateShippingAddressByIdService(id, data) {
  * @returns
  */
 export async function removeShippingAddressByIdService(id) {
-  return ShippingAddressModel.findByIdAndDelete(id).select(SELECTED_FIELDS);
+  return ShippingAddressModel.findByIdAndDelete(id).select(
+    SELECTED_FIELDS
+  );
 }
 
 /**
@@ -94,7 +97,10 @@ export async function removeShippingAddressByIdService(id) {
  * @param {*} customerId
  * @returns
  */
-export async function setDefaultShippingAddressByIdService(addressId, customerId) {
+export async function setDefaultShippingAddressByIdService(
+  addressId,
+  customerId
+) {
   await ShippingAddressModel.updateOne(
     {
       _id: addressId,
@@ -113,7 +119,9 @@ export async function setDefaultShippingAddressByIdService(addressId, customerId
  * @param {*} customerId
  * @returns
  */
-export async function unsetDefaultCurrentShippingAddressService(customerId) {
+export async function unsetDefaultCurrentShippingAddressService(
+  customerId
+) {
   await ShippingAddressModel.updateOne(
     {
       customer: customerId,

@@ -11,7 +11,6 @@ import {
   getAllDistrictsByProvincesController,
   getAllWardsByDistrictController,
   setDefaultShippingAddressByIdController,
-  unsetDefaultShippingAddressByIdController
 } from "#src/modules/shipping-addresses/shipping-addresses.controller";
 import { createShippingAddressDto } from "#src/modules/shipping-addresses/dto/create-shipping-address.dto";
 import { updateShippingAddressDto } from "#src/modules/shipping-addresses/dto/update-shipping-address.dto";
@@ -46,10 +45,6 @@ router
   .patch("/set-default-by-id/:id",
     // isAuthorized,
     setDefaultShippingAddressByIdController
-  )
-  .patch("/unset-default/",
-    // isAuthorized,
-    unsetDefaultShippingAddressByIdController
   )
   .get(
     "/get-all-provinces",
