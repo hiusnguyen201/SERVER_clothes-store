@@ -15,12 +15,8 @@ import {
   unsetDefaultCurrentShippingAddressService,
 } from "#src/modules/shipping-addresses/shipping-addresses.service";
 import { calculatePagination } from "#src/utils/pagination.util";
-import {
-  getDistrictByCodeAndProvinceCodeService,
-  getProvinceByCodeService,
-  getWardByCodeAndDistrictCodeService,
-} from "#src/modules/vietnam-provinces/vietnam-provinces.service";
 import pkg from 'vietnam-provinces';
+import { validateShippingAddress } from "#src/modules/shipping-addresses/dto/validate-shipping-address.dto";
 
 const {
   getDistricts,
@@ -31,22 +27,14 @@ export const createShippingAddressController = async (req, res) => {
   const customerId = req.user?._id ?? "674c2acaee49e3618bb6a9ff";
   const { provinceCode, districtCode, wardCode } = req.body;
 
-  const provinceResult = getProvinceByCodeService(provinceCode);
-  const districtResult = getDistrictByCodeAndProvinceCodeService(provinceCode, districtCode);
-  const wardResult = getWardByCodeAndDistrictCodeService(districtCode, wardCode);
-
-  const isValid = provinceResult && districtResult.isValid && wardResult.isValid;
-  if (!isValid) {
-    throw new PreconditionFailedException(`Error: ${JSON.stringify({
-      province: !provinceResult.isValid ? provinceResult.error : "OK",
-      district: !districtResult.isValid ? districtResult.error : "OK",
-      ward: !wardResult.isValid ? wardResult.error : "OK"
-    })}`);
+  const result = validateShippingAddress(provinceCode, districtCode, wardCode);
+  if (!result) {
+    throw new PreconditionFailedException("Invalid address");
   }
 
-  req.body.city = provinceResult.data.name
-  req.body.district = districtResult.data.name
-  req.body.ward = wardResult.data.name
+  req.body.city = result.province.name
+  req.body.district = result.district.name
+  req.body.ward = result.ward.name
 
   const filterOptions = {
     customer: customerId
@@ -122,17 +110,9 @@ export const updateShippingAddressByIdController = async (req, res) => {
   }
 
   if (provinceCode || districtCode || wardCode) {
-    const provinceResult = getProvinceByCodeService(provinceCode);
-    const districtResult = getDistrictByCodeAndProvinceCodeService(provinceCode, districtCode);
-    const wardResult = getWardByCodeAndDistrictCodeService(districtCode, wardCode);
-
-    const isValid = provinceResult && districtResult.isValid && wardResult.isValid;
-    if (!isValid) {
-      throw new PreconditionFailedException(`Error: ${JSON.stringify({
-        province: !provinceResult.isValid ? provinceResult.error : "OK",
-        district: !districtResult.isValid ? districtResult.error : "OK",
-        ward: !wardResult.isValid ? wardResult.error : "OK"
-      })}`);
+    const result = validateShippingAddress(provinceCode, districtCode, wardCode);
+    if (!result) {
+      throw new PreconditionFailedException("Invalid address");
     }
 
     req.body.city = provinceResult.data.name

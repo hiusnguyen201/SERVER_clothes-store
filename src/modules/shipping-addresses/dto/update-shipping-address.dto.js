@@ -6,10 +6,6 @@ export const updateShippingAddressDto = Joi.object({
     .min(3)
     .max(100)
     .custom((value) => replaceMultiSpacesToSingleSpace(value)),
-  street: Joi.string()
-    .min(3)
-    .max(50)
-    .custom((value) => replaceMultiSpacesToSingleSpace(value)),
   provinceCode: Joi.string()
     .pattern(/^\d+$/),
   districtCode: Joi.string()

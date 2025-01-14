@@ -10,11 +10,6 @@ const shippingAddressSchema = new Schema(
       length: 255,
       required: true,
     },
-    street: {
-      type: String,
-      length: 50,
-      required: true,
-    },
     city: {
       type: String,
       length: 50,
