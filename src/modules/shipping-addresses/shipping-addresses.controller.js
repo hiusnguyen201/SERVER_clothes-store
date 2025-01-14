@@ -11,24 +11,42 @@ import {
   updateShippingAddressByIdService,
   removeShippingAddressByIdService,
   countAllShippingAddressesService,
-  activateDefaultShippingAddressIdService,
-  deactivateDefaultShippingAddressIdService,
+  setDefaultShippingAddressByIdService,
+  unsetDefaultCurrentShippingAddressService,
 } from "#src/modules/shipping-addresses/shipping-addresses.service";
 import { calculatePagination } from "#src/utils/pagination.util";
-import { validateAndGetAddress } from "#src/modules/shipping-addresses/schemas/shipping-address.util";
+import {
+  getDistrictByCodeAndProvinceCodeService,
+  getProvinceByCodeService,
+  getWardByCodeAndDistrictCodeService,
+} from "#src/modules/vietnam-provinces/vietnam-provinces.service";
+import pkg from 'vietnam-provinces';
+
+const {
+  getDistricts,
+  getProvinces,
+  getWards } = pkg;
 
 export const createShippingAddressController = async (req, res) => {
   const customerId = req.user?._id ?? "674c2acaee49e3618bb6a9ff";
-  const { cityCode, districtCode, wardCode } = req.body;
+  const { provinceCode, districtCode, wardCode } = req.body;
 
-  const result = await validateAndGetAddress(cityCode, districtCode, wardCode);
+  const provinceResult = getProvinceByCodeService(provinceCode);
+  const districtResult = getDistrictByCodeAndProvinceCodeService(provinceCode, districtCode);
+  const wardResult = getWardByCodeAndDistrictCodeService(districtCode, wardCode);
 
-  if (!result.isValid) {
-    throw new PreconditionFailedException(`Error: ${JSON.stringify(result.errors)}`);
+  const isValid = provinceResult && districtResult.isValid && wardResult.isValid;
+  if (!isValid) {
+    throw new PreconditionFailedException(`Error: ${JSON.stringify({
+      province: !provinceResult.isValid ? provinceResult.error : "OK",
+      district: !districtResult.isValid ? districtResult.error : "OK",
+      ward: !wardResult.isValid ? wardResult.error : "OK"
+    })}`);
   }
-  req.body.city = result.data.city
-  req.body.district = result.data.district
-  req.body.ward = result.data.ward
+
+  req.body.city = provinceResult.data.name
+  req.body.district = districtResult.data.name
+  req.body.ward = wardResult.data.name
 
   const filterOptions = {
     customer: customerId
@@ -96,21 +114,31 @@ export const getShippingAddressByIdController = async (req, res) => {
 export const updateShippingAddressByIdController = async (req, res) => {
   const customerId = req.user?._id || "674c2acaee49e3618bb6a9ff";
   const { id } = req.params;
-  const { cityCode, districtCode, wardCode } = req.body;
+  const { provinceCode, districtCode, wardCode } = req.body;
 
   const existShippingAddress = await getShippingAddressByIdService(id, customerId);
   if (!existShippingAddress) {
     throw new NotFoundException("Shipping address not found");
   }
 
-  const result = await validateAndGetAddress(cityCode, districtCode, wardCode);
+  if (provinceCode || districtCode || wardCode) {
+    const provinceResult = getProvinceByCodeService(provinceCode);
+    const districtResult = getDistrictByCodeAndProvinceCodeService(provinceCode, districtCode);
+    const wardResult = getWardByCodeAndDistrictCodeService(districtCode, wardCode);
 
-  if (!result.isValid) {
-    throw new PreconditionFailedException(`Error: ${JSON.stringify(result.errors)}`);
+    const isValid = provinceResult && districtResult.isValid && wardResult.isValid;
+    if (!isValid) {
+      throw new PreconditionFailedException(`Error: ${JSON.stringify({
+        province: !provinceResult.isValid ? provinceResult.error : "OK",
+        district: !districtResult.isValid ? districtResult.error : "OK",
+        ward: !wardResult.isValid ? wardResult.error : "OK"
+      })}`);
+    }
+
+    req.body.city = provinceResult.data.name
+    req.body.district = districtResult.data.name
+    req.body.ward = wardResult.data.name
   }
-  req.body.city = result.data.city
-  req.body.district = result.data.district
-  req.body.ward = result.data.ward
 
   const updatedShippingAddress = await updateShippingAddressByIdService(id, req.body)
 
@@ -138,7 +166,7 @@ export const removeShippingAddressByIdController = async (req, res) => {
   });
 };
 
-export const activateDefaultShippingAddressIdController = async (req, res) => {
+export const setDefaultShippingAddressByIdController = async (req, res) => {
   const { id } = req.params;
   const customerId = req.user?._id || "674c2acaee49e3618bb6a9ff";
 
@@ -147,81 +175,66 @@ export const activateDefaultShippingAddressIdController = async (req, res) => {
     throw new NotFoundException("Shipping address not found");
   }
 
-  await activateDefaultShippingAddressIdService(id, customerId);
+  await unsetDefaultCurrentShippingAddressService(customerId);
+  await setDefaultShippingAddressByIdService(id, customerId);
 
   return res.json({
     statusCode: HttpStatus.NO_CONTENT,
-    message: "Activate default shipping address successfully",
+    message: "Set default shipping address successfully",
   });
 };
 
-export const deactivateDefaultShippingAddressIdController = async (req, res) => {
+export const unsetDefaultShippingAddressByIdController = async (req, res) => {
   const customerId = req.user?._id || "674c2acaee49e3618bb6a9ff";
-  const { id } = req.params;
-
-  const existShippingAddress = await getShippingAddressByIdService(id, customerId);
-  if (!existShippingAddress) {
-    throw new NotFoundException("Shipping address not found");
-  }
 
   const filterOptions = {
     customer: customerId,
     isDefault: true,
   };
   const totalCount = await countAllShippingAddressesService(filterOptions);
-  
+
   if (totalCount === 1) {
     throw new ConflictException("Must have an address by default");
   }
 
-  await deactivateDefaultShippingAddressIdService(id, customerId);
+  await unsetDefaultCurrentShippingAddressService(customerId);
 
   return res.json({
     statusCode: HttpStatus.NO_CONTENT,
-    message: "Deactivate default shipping address successfully",
+    message: "Unset default shipping address successfully",
   });
 };
 
-export const getAllCityController = async (req, res) => {
-  const response = await fetch(process.env.URL_ADDRESS_API);
-  if (!response.ok) {
-    throw new NotFoundException("Shipping address not found");
-  }
-  const json = await response.json();
+export const getAllProvincesController = async (req, res) => {
+  const provinces = getProvinces();
 
   return res.json({
     statusCode: HttpStatus.OK,
-    message: "Get all city successfully",
-    data: json,
+    message: "Get all provinces successfully",
+    data: provinces,
   });
 }
 
-export const getDistrictByCityController = async (req, res) => {
-  const { id } = req.params;
-  const response = await fetch(`${process.env.URL_ADDRESS_API}/p/${id}?depth=2`);
-  if (!response.ok) {
-    throw new NotFoundException("Shipping address not found");
-  }
-  const json = await response.json();
+export const getAllDistrictsByProvincesController = async (req, res) => {
+  const { provinceCode } = req.params;
+
+  const districts = getDistricts(provinceCode);
 
   return res.json({
     statusCode: HttpStatus.OK,
-    message: "Get all district successfully",
-    data: json,
+    message: "Get all districts successfully",
+    data: districts,
   });
 }
 
-export const getWardByCityController = async (req, res) => {
-  const { id } = req.params;
-  const response = await fetch(`${process.env.URL_ADDRESS_API}/d/${id}?depth=2`);
-  if (!response.ok) {
-    throw new NotFoundException("Shipping address not found");
-  }
-  const json = await response.json();
+export const getAllWardsByDistrictController = async (req, res) => {
+  const { districtCode } = req.params;
+
+  const wards = getWards(districtCode);
 
   return res.json({
     statusCode: HttpStatus.OK,
-    message: "Get all ward successfully",
-    data: json,
+    message: "Get all wards successfully",
+    data: wards,
   });
 }

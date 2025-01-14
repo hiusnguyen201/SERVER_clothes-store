@@ -7,11 +7,11 @@ import {
   getShippingAddressByIdController,
   updateShippingAddressByIdController,
   removeShippingAddressByIdController,
-  getAllCityController,
-  getDistrictByCityController,
-  getWardByCityController,
-  activateDefaultShippingAddressIdController,
-  deactivateDefaultShippingAddressIdController,
+  getAllProvincesController,
+  getAllDistrictsByProvincesController,
+  getAllWardsByDistrictController,
+  setDefaultShippingAddressByIdController,
+  unsetDefaultShippingAddressByIdController
 } from "#src/modules/shipping-addresses/shipping-addresses.controller";
 import { createShippingAddressDto } from "#src/modules/shipping-addresses/dto/create-shipping-address.dto";
 import { updateShippingAddressDto } from "#src/modules/shipping-addresses/dto/update-shipping-address.dto";
@@ -43,24 +43,24 @@ router
     // isAuthorized,
     removeShippingAddressByIdController
   )
-  .patch("/active-default-by-id/:id",
+  .patch("/set-default-by-id/:id",
     // isAuthorized,
-    activateDefaultShippingAddressIdController
+    setDefaultShippingAddressByIdController
   )
-  .patch("/deactive-default-by-id/:id",
+  .patch("/unset-default/",
     // isAuthorized,
-    deactivateDefaultShippingAddressIdController
+    unsetDefaultShippingAddressByIdController
   )
   .get(
-    "/get-all-city",
-    getAllCityController
+    "/get-all-provinces",
+    getAllProvincesController
   )
   .get(
-    "/get-all-district-by-city/:id",
-    getDistrictByCityController
+    "/get-all-districts-by-province/:provinceCode",
+    getAllDistrictsByProvincesController
   )
   .get(
-    "/get-all-ward-by-district/:id",
-    getWardByCityController
+    "/get-all-wards-by-district/:districtCode",
+    getAllWardsByDistrictController
   )
 export default router;

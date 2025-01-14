@@ -89,24 +89,12 @@ export async function removeShippingAddressByIdService(id) {
 }
 
 /**
- * Active default shipping address
+ * Set default shipping address by id
  * @param {*} addressId
  * @param {*} customerId
  * @returns
  */
-export async function activateDefaultShippingAddressIdService(addressId, customerId) {
-
-  await ShippingAddressModel.updateOne(
-    {
-      customer: customerId,
-      isDefault: true,
-    },
-    {
-      isDefault: false,
-    },
-    { new: true }
-  ).select(SELECTED_FIELDS);
-
+export async function setDefaultShippingAddressByIdService(addressId, customerId) {
   await ShippingAddressModel.updateOne(
     {
       _id: addressId,
@@ -121,17 +109,15 @@ export async function activateDefaultShippingAddressIdService(addressId, custome
 }
 
 /**
- * Deactive default shipping address
- * @param {*} addressId
+ * Unset default current shipping address
  * @param {*} customerId
  * @returns
  */
-
-export async function deactivateDefaultShippingAddressIdService(addressId, customerId) {
+export async function unsetDefaultCurrentShippingAddressService(customerId) {
   await ShippingAddressModel.updateOne(
     {
-      _id: addressId,
       customer: customerId,
+      isDefault: true,
     },
     {
       isDefault: false,
