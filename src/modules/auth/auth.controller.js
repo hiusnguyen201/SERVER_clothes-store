@@ -89,7 +89,7 @@ export const loginController = async (req) => {
     message: "Login successfully",
     data: {
       isAuthenticated: !isNeed2Fa,
-      accessToken: isNeed2Fa ? null : generateToken({ _id: user._id }),
+      accessToken: isNeed2Fa ? null : generateToken({ _id: user._id, type: user.type }),
       is2FactorRequired: isNeed2Fa,
       user: { _id: user._id, name: user.name, email: user.email },
     },

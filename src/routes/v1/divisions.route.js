@@ -15,11 +15,11 @@ import {
 router
   .get("/get-all-provinces", getAllProvincesController)
   .get("/get-all-districts", getAllDistrictsController)
+  .get("/get-all-wards", getAllWardsController)
   .get(
     "/get-all-districts-by-province-code/:provinceCode",
     getAllDistrictsByProvinceCodeController
   )
-  .get("/get-all-wards", getAllWardsController)
   .get(
     "/get-all-wards-by-district-code/:districtCode",
     getAllWardsByDistrictCodeController

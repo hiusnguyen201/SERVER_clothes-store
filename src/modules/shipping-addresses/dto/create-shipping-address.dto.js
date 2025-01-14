@@ -21,28 +21,40 @@ export const createShippingAddressDto = Joi.object({
       if (!province) {
         return helpers.message("Province is not found");
       }
-      return province.name;
+      helpers.state.ancestors[0].details = { ...helpers.state.ancestors[0].details, provinceName: province.name };
+      return value;
     }),
   district: Joi.string()
     .pattern(REGEX_PATTERNS.STRING_NUMBER)
     .required()
     .custom((value, helpers) => {
-      const { provinceCode } = helpers.state.ancestors[0];
+      const { province } = helpers.state.ancestors[0];
       const district = getDistrictByCodeService(value);
-      if (!district || district.province_code !== provinceCode) {
+      if (!district || district.province_code !== province) {
         return helpers.message("District is not found");
       }
-      return district.name;
+      helpers.state.ancestors[0].details = { ...helpers.state.ancestors[0].details, districtName: district.name };
+      return value;
     }),
   ward: Joi.string()
     .pattern(REGEX_PATTERNS.STRING_NUMBER)
     .required()
     .custom((value, helpers) => {
-      const { districtCode } = helpers.state.ancestors[0];
+      const { district } = helpers.state.ancestors[0];
       const ward = getWardByCodeService(value);
-      if (!ward || ward.district_code !== districtCode) {
+      if (!ward || ward.district_code !== district) {
         return helpers.message("Ward is not found");
       }
-      return ward.name;
+      helpers.state.ancestors[0].details = { ...helpers.state.ancestors[0].details, wardName: ward.name };
+      return value;
     }),
+}).custom((value, helpers) => {
+  const { address } = value;
+  const { provinceName, districtName, wardName } = value.details;
+  return {
+    address: address,
+    province: provinceName,
+    district: districtName,
+    ward: wardName,
+  }
 });

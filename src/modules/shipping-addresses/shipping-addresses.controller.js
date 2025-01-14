@@ -1,5 +1,5 @@
 import HttpStatus from "http-status-codes";
-import { NotFoundException } from "#src/core/exception/http-exception";
+import { ConflictException, NotFoundException } from "#src/core/exception/http-exception";
 import {
   createShippingAddressService,
   getAllShippingAddressesService,
@@ -126,6 +126,10 @@ export const setDefaultShippingAddressByIdController = async (req) => {
 
   if (!existShippingAddress) {
     throw new NotFoundException("Shipping address not found");
+  }
+
+  if (existShippingAddress.isDefault) {
+    throw new ConflictException("Current address is default");
   }
 
   await unsetDefaultCurrentShippingAddressService(customerId);
